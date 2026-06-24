@@ -1,9 +1,13 @@
-import AppShell from "@/components/layout/AppShell";
+import "@/app/globals.css";
 
-export default function CustomerLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <AppShell>{children}</AppShell>;
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
 }

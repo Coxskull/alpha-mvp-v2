@@ -1,16 +1,20 @@
 export type OrderStatus =
+  | "payment_pending"
   | "pending"
   | "supplier_assigned"
   | "supplier_accepted"
   | "ready_for_pickup"
   | "driver_assigned"
+  | "driver_accepted"
   | "picked_up"
   | "en_route"
-  | "proof_uploaded"
+  | "arrived"
   | "delivered"
+  | "proof_uploaded"
+  | "completed"
   | "cancelled";
 
-export interface Order {
+export type Order = {
   id: string;
   orderNumber: string;
   customerName: string;
@@ -19,13 +23,13 @@ export interface Order {
   itemDescription: string;
   zone: string;
   status: OrderStatus;
-  supplierId?: string;
-  supplierName?: string;
-  driverId?: string;
-  driverName?: string;
+  supplierId?: string | null;
+  supplierName?: string | null;
+  driverId?: string | null;
+  driverName?: string | null;
   createdAt?: string;
   updatedAt?: string;
-}
+};
 
 export interface ProviderOrder {
   id: string;

@@ -72,7 +72,7 @@ export default function DashboardPage() {
                 </div>
 
                 <Link
-  href="/mission-control/orders"
+  href="/orders"
   className="bg-green-500 hover:bg-green-400 text-black font-semibold px-5 py-2.5 rounded-xl transition-all"
 >
   View All
