@@ -1,7 +1,14 @@
+import RoleGuard from "@/components/auth/RoleGuard";
+import DriverApp from "@/components/driver/DriverApp";
+
 export default function DriverLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  return <div className="min-h-screen bg-slate-950 text-white">{children}</div>;
+}) {
+  return (
+    <RoleGuard allowedRoles={["driver"]}>
+      <DriverApp>{children}</DriverApp>
+    </RoleGuard>
+  );
 }

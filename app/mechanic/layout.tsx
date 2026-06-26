@@ -1,11 +1,14 @@
+import RoleGuard from "@/components/auth/RoleGuard";
+import MechanicApp from "@/components/mechanic/MechanicApp";
+
 export default function MechanicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen bg-[#020617] text-white">
-      {children}
-    </main>
+    <RoleGuard allowedRoles={["mechanic"]}>
+      <MechanicApp>{children}</MechanicApp>
+    </RoleGuard>
   );
 }

@@ -1,9 +1,14 @@
+import RoleGuard from "@/components/auth/RoleGuard";
 import AdminApp from "@/components/AdminApp";
 
 export default function MissionControlLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  return <AdminApp>{children}</AdminApp>;
+}) {
+  return (
+    <RoleGuard allowedRoles={["admin", "dispatcher"]}>
+      <AdminApp>{children}</AdminApp>
+    </RoleGuard>
+  );
 }
