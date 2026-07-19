@@ -7,9 +7,12 @@ export type CreateOrderPayload = {
   deliveryAddress: string;
   itemDescription: string;
   zone: string;
-  itemSubtotal: number;
   currency: string;
   paymentMethod: string;
+  items: {
+    productId: string;
+    quantity: number;
+  }[];
 };
 
 export async function createOrder(data: CreateOrderPayload) {

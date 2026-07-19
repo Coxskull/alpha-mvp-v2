@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/services/api";
+import Link from "next/link";
 
 type Role =
   | "admin"
@@ -54,6 +55,13 @@ export default function LoginForm({
     localStorage.setItem("alpha_token", response.data.token);
     localStorage.setItem("alpha_user", JSON.stringify(user));
 
+    if (user.supplierId || user.SupplierId) {
+  localStorage.setItem(
+    "supplierId",
+    user.supplierId || user.SupplierId
+  );
+}
+
     router.push(redirectTo);
     router.refresh();
   } catch (error) {
@@ -102,6 +110,24 @@ export default function LoginForm({
               {error}
             </p>
           )}
+
+          {role === "customer" && (
+  <div className="flex items-center justify-between text-sm">
+    <Link
+      href="/register"
+      className="text-green-400 hover:underline"
+    >
+      Create account
+    </Link>
+
+    <Link
+      href="/forgot-password"
+      className="text-gray-300 hover:text-white"
+    >
+      Forgot password?
+    </Link>
+  </div>
+)}
 
           <button
             onClick={handleLogin}

@@ -15,7 +15,10 @@ export const assignSupplier = async (
     `/api/Orders/${orderId}/assign-supplier`
   );
 };
-
+export async function driverAcceptOrder(orderId: string) {
+  const response = await api.post(`/api/Orders/${orderId}/driver-accept`);
+  return response.data;
+}
 export const markPickedUp = async (
   orderId: string
 ) => {
@@ -47,3 +50,16 @@ export async function confirmPayment(orderId: string) {
     },
   });
 };
+
+export async function uploadDeliveryProof(orderId: string, file: File) {
+  const data = new FormData();
+  data.append("image", file);
+
+  const response = await api.post(`/api/Orders/${orderId}/proof`, data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
+}
