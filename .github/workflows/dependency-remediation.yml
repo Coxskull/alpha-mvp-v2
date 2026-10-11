@@ -1,0 +1,80 @@
+name: Dependency remediation validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - security/dependency-remediation-20261011
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-remediation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regenerate-and-validate:
+    name: Regenerate lockfile and validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Regenerate lockfile without package lifecycle scripts
+        run: npm install --package-lock-only --ignore-scripts
+
+      - name: Install regenerated locked dependencies
+        run: npm ci
+
+      - name: Dependency audit report
+        shell: bash
+        run: |
+          npm audit --json > npm-audit.json || true
+          node <<'NODE'
+          const fs = require("node:fs");
+          const report = JSON.parse(fs.readFileSync("npm-audit.json", "utf8"));
+          console.log("Dependency vulnerability totals:");
+          console.log(JSON.stringify(report.metadata?.vulnerabilities ?? {}, null, 2));
+          console.log("Affected packages:");
+          for (const [name, finding] of Object.entries(report.vulnerabilities ?? {})) {
+            console.log(JSON.stringify({
+              name,
+              severity: finding.severity,
+              direct: finding.isDirect,
+              range: finding.range,
+              advisories: (finding.via ?? []).map((item) =>
+                typeof item === "string"
+                  ? item
+                  : { title: item.title, url: item.url, range: item.range }
+              ),
+              fixAvailable: finding.fixAvailable
+            }));
+          }
+          NODE
+
+      - name: Upload regenerated lockfile and audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-remediation-evidence
+          path: |
+            package-lock.json
+            npm-audit.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Production build
+        env:
+          NEXT_PUBLIC_API_URL: https://example.invalid
+        run: npm run build
