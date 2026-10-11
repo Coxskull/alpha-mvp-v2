@@ -17,7 +17,7 @@ export default function RoleGuard({
   const [status, setStatus] = useState<"checking" | "allowed" | "blocked">("checking");
   const allowedRolesKey = allowedRoles
     .map((role) => role.toLowerCase())
-    .join("\\u0000");
+    .join("|");
 
   useEffect(() => {
     let active = true;
@@ -44,7 +44,7 @@ export default function RoleGuard({
         }
 
         const normalizedRoles = roles.map((role) => role.toLowerCase());
-        const normalizedAllowedRoles = allowedRolesKey.split("\\u0000");
+        const normalizedAllowedRoles = allowedRolesKey.split("|");
         const isAllowed = normalizedRoles.some((role) =>
           normalizedAllowedRoles.includes(role)
         );
