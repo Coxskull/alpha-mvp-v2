@@ -29,11 +29,24 @@ export default function RoleGuard({
 
       try {
         const response = await api.get("/api/Auth/me");
-        const role = response.data.role?.toLowerCase();
+        const responseRoles: unknown = response.data.roles;
+        const roles = Array.isArray(responseRoles)
+          ? responseRoles.filter((role): role is string => typeof role === "string")
+          : [];
+        const primaryRole = response.data.role;
 
-        const normalizedAllowedRoles = allowedRoles.map((x) => x.toLowerCase());
+        // Support multi-role accounts while retaining compatibility with older API responses.
+        if (roles.length === 0 && typeof primaryRole === "string") {
+          roles.push(primaryRole);
+        }
 
-        if (!normalizedAllowedRoles.includes(role)) {
+        const normalizedRoles = roles.map((role) => role.toLowerCase());
+        const normalizedAllowedRoles = allowedRoles.map((role) => role.toLowerCase());
+        const isAllowed = normalizedRoles.some((role) =>
+          normalizedAllowedRoles.includes(role)
+        );
+
+        if (!isAllowed) {
           if (active) setStatus("blocked");
           router.replace("/unauthorized");
           return;
@@ -47,7 +60,7 @@ export default function RoleGuard({
       }
     };
 
-    checkAuth();
+    void checkAuth();
 
     return () => {
       active = false;
