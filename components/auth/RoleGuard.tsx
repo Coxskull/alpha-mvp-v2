@@ -15,6 +15,9 @@ export default function RoleGuard({
 }: RoleGuardProps) {
   const router = useRouter();
   const [status, setStatus] = useState<"checking" | "allowed" | "blocked">("checking");
+  const allowedRolesKey = allowedRoles
+    .map((role) => role.toLowerCase())
+    .join("\\u0000");
 
   useEffect(() => {
     let active = true;
@@ -35,13 +38,13 @@ export default function RoleGuard({
           : [];
         const primaryRole = response.data.role;
 
-        // Support multi-role accounts while retaining compatibility with older API responses.
-        if (roles.length === 0 && typeof primaryRole === "string") {
+        // Only use the primary-role fallback when the roles field is absent in an older response.
+        if (!Array.isArray(responseRoles) && typeof primaryRole === "string") {
           roles.push(primaryRole);
         }
 
         const normalizedRoles = roles.map((role) => role.toLowerCase());
-        const normalizedAllowedRoles = allowedRoles.map((role) => role.toLowerCase());
+        const normalizedAllowedRoles = allowedRolesKey.split("\\u0000");
         const isAllowed = normalizedRoles.some((role) =>
           normalizedAllowedRoles.includes(role)
         );
@@ -65,7 +68,7 @@ export default function RoleGuard({
     return () => {
       active = false;
     };
-  }, [router, allowedRoles]);
+  }, [router, allowedRolesKey]);
 
   if (status === "checking") {
     return (
