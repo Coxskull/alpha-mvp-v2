@@ -26,6 +26,7 @@ export default function RoleGuard({
       const token = localStorage.getItem("alpha_token");
 
       if (!token) {
+        if (active) setStatus("blocked");
         router.replace("/");
         return;
       }
@@ -59,6 +60,7 @@ export default function RoleGuard({
       } catch {
         localStorage.removeItem("alpha_token");
         localStorage.removeItem("alpha_user");
+        if (active) setStatus("blocked");
         router.replace("/");
       }
     };
