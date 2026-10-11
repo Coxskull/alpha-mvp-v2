@@ -42,7 +42,20 @@ export default function LoginForm({
       const data = await login(email, password);
       const user = data.user;
 
-      if (user.role?.toLowerCase() !== role.toLowerCase()) {
+      const activeRoles = Array.isArray(user.roles)
+        ? user.roles.filter(
+            (candidate: unknown): candidate is string =>
+              typeof candidate === "string"
+          )
+        : [];
+      const effectiveRoles =
+        activeRoles.length > 0
+          ? activeRoles.map((activeRole: string) => activeRole.toLowerCase())
+          : typeof user.role === "string"
+            ? [user.role.toLowerCase()]
+            : [];
+
+      if (!effectiveRoles.includes(role.toLowerCase())) {
         setError("You are not allowed to access this panel.");
         setLoading(false);
         return;
