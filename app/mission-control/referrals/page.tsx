@@ -113,8 +113,31 @@ export default function ReferralPage() {
   }, []);
 
   useEffect(() => {
-    loadDashboard();
-  }, [loadDashboard]);
+    let isCurrent = true;
+
+    async function fetchInitialDashboard() {
+      try {
+        const result = await getReferralDashboard();
+        if (isCurrent) {
+          setDashboard(result);
+        }
+      } catch {
+        if (isCurrent) {
+          setError("The referral dashboard could not be loaded.");
+        }
+      } finally {
+        if (isCurrent) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void fetchInitialDashboard();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
 
   const filteredMembers = useMemo(() => {
     if (!dashboard) {
